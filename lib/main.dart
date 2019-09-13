@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:flutter_tts_sample/models.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
+
 
 void main() => runApp(MyApp());
 
@@ -35,18 +35,6 @@ class _MyAppState extends State<MyApp> {
   initState() {
     super.initState();
     initTts();
-    loadTextScripts();
-  }
-
-  List<Script> listScript = [];
-  loadTextScripts() async {
-    List<String> files =
-        ['0203', '0204', '0205', '0206', '0207', '0208', '0209', '0210'].map((item) => 'DSC_$item').toList();
-    for (int i = 0; i < files.length; ++i) {
-      String text = await rootBundle.loadString('assets/${files.elementAt(i)}.txt');
-      listScript.add(Script(name: files.elementAt(i), script: text));
-    }
-    setState(() {});
   }
 
   initTts() {
@@ -114,8 +102,10 @@ class _MyAppState extends State<MyApp> {
 //    if (_newVoiceText != null) {
 //      if (_newVoiceText.isNotEmpty) {
 
-    List<String> files =
-        ['0203', '0204', '0205', '0206', '0207', '0208', '0209', '0210'].map((item) => 'DSC_$item').toList();
+    List<String> files = ['0203','0204', '0205', '0206', '0207', '0208', '0209', '0210']
+        .map((item) => 'DSC_$item')
+        .toList();
+
 
     for (int i = 0; i < files.length; ++i) {
       String text = await rootBundle.loadString('assets/${files.elementAt(i)}.txt');
@@ -194,56 +184,15 @@ class _MyAppState extends State<MyApp> {
             appBar: AppBar(
               title: Text('Flutter TTS'),
             ),
-            body: textScriptListView()));
-  }
-
-  Script _currentlyScript;
-  Widget textScriptListView() {
-    return Container(
-        child: ListView.builder(
-            itemCount: listScript.length,
-            itemBuilder: (context, index) {
-              Script item = listScript.elementAt(index);
-              return Column(
-                children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 32.0),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(child: Text(item.name)),
-                        IconButton(
-                            icon: Icon(item.speaking ? Icons.pause : Icons.play_arrow),
-                            onPressed: item.speaking
-                                ? () async {
-                                    await flutterTts.stop();
-                                    setState(() {
-                                      item.speaking = false;
-                                      if (item != _currentlyScript) {
-                                        _currentlyScript?.speaking = false;
-                                      }
-                                    });
-                                  }
-                                : () async {
-                                    if (_currentlyScript != null && _currentlyScript.speaking) {
-                                      await flutterTts.stop();
-                                      setState(() {
-                                        _currentlyScript.speaking = false;
-                                      });
-                                    }
-
-                                    setState(() {
-                                      _currentlyScript = item;
-                                      _currentlyScript.speaking = true;
-                                    });
-                                    await flutterTts.speak(item.script);
-                                  })
-                      ],
-                    ),
-                  ),
-                  Divider(height: 1.0)
-                ],
-              );
-            }));
+            body: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(children: [
+                  inputSection(),
+                  btnSection(),
+                  languages != null ? languageDropDownSection() : Text(""),
+                  voices != null ? voiceDropDownSection() : Text(""),
+                  Platform.isAndroid ? silenceDropDownSection() : Text("")
+                ]))));
   }
 
   Widget inputSection() => Container(
