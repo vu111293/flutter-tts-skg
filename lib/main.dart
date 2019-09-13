@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:flutter_tts_sample/models.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 void main() => runApp(MyApp());
@@ -108,26 +107,6 @@ class _MyAppState extends State<MyApp> {
   Future _stop() async {
     var result = await flutterTts.stop();
     if (result == 1) setState(() => ttsState = TtsState.stopped);
-  }
-
-  Future _convertAudio() async {
-//    if (_newVoiceText != null) {
-//      if (_newVoiceText.isNotEmpty) {
-
-    List<String> files =
-        ['0203', '0204', '0205', '0206', '0207', '0208', '0209', '0210'].map((item) => 'DSC_$item').toList();
-
-    for (int i = 0; i < files.length; ++i) {
-      String text = await rootBundle.loadString('assets/${files.elementAt(i)}.txt');
-      Directory audioPath = await getExternalStorageDirectory();
-      String path = audioPath.path + "/${files.elementAt(i)}.mp3";
-
-      await Future.delayed(Duration(seconds: 1));
-      int done = await flutterTts.getAudioFile(text, path);
-      print('${done == 1 ? 'Sucess conv' : 'Conv error'} for ${files.elementAt(i)}');
-    }
-//      }
-//    }
   }
 
   @override
@@ -260,7 +239,6 @@ class _MyAppState extends State<MyApp> {
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
         _buildButtonColumn(Colors.green, Colors.greenAccent, Icons.play_arrow, 'PLAY', _speak),
         _buildButtonColumn(Colors.red, Colors.redAccent, Icons.stop, 'STOP', _stop),
-        _buildButtonColumn(Colors.blue, Colors.blueAccent, Icons.audiotrack, 'AUDIO', _convertAudio),
       ]));
 
   Widget languageDropDownSection() => Container(
